@@ -1,0 +1,13 @@
+Welcome to the action-access library
+
+* Overview
+
+    action-access is a Java library to access the action-core API.
+    See the {{{/dwarf/action-access/faq.html}FAQ}} to get started.
+
+
+* Why would I use it?
+
+    Ning uses the action-core as an abstraction layer for HDFS. The logic of connecting to Hadoop
+    and decoding Thrift or Smile files is encapsulated in a single location. Clients simply need to
+    talk HTTP to the action-core to access the data (e.g. in JSON format).

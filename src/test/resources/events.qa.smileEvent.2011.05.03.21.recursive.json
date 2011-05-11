@@ -1,0 +1,19 @@
+{
+  "path" : "/events/qa/smileEvent/2011/05/03/21",
+  "parentPath" : "/events/qa/smileEvent/2011/05/03",
+  "entries" : [ {
+    "path" : "/events/qa/smileEvent/2011/05/03/21/2011-05-03T21.56.47.020Z-1.2.3.4-8989",
+    "mtime" : 1304459806898,
+    "size" : 321,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : {
+      "path" : "/events/qa/smileEvent/2011/05/03/21/2011-05-03T21.56.47.020Z-1.2.3.4-8989",
+      "entries" : [ {
+        "1" : 1304459794698,
+        "2" : "HOURLY",
+        "3" : "world"
+      } ]
+    }
+  } ]
+}

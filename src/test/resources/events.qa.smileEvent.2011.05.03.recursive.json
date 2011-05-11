@@ -1,0 +1,47 @@
+{
+  "path" : "/events/qa/smileEvent/2011/05/03",
+  "parentPath" : "/events/qa/smileEvent/2011/05",
+  "entries" : [ {
+    "path" : "/events/qa/smileEvent/2011/05/03/21/2011-05-03T21.56.47.020Z-1.2.3.4-8989",
+    "mtime" : 1304459806898,
+    "size" : 321,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : {
+      "path" : "/events/qa/smileEvent/2011/05/03/21/2011-05-03T21.56.47.020Z-1.2.3.4-8989",
+      "entries" : [ {
+        "1" : 1304459794698,
+        "2" : "HOURLY",
+        "3" : "world"
+      } ]
+    }
+  }, {
+    "path" : "/events/qa/smileEvent/2011/05/03/21",
+    "mtime" : 1304459806942,
+    "size" : 0,
+    "replication" : 0,
+    "isDir" : true,
+    "content" : ""
+  }, {
+    "path" : "/events/qa/smileEvent/2011/05/03/22/2011-05-03T22.05.17.615Z-1.2.3.4-8989",
+    "mtime" : 1304460317661,
+    "size" : 321,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : {
+      "path" : "/events/qa/smileEvent/2011/05/03/22/2011-05-03T22.05.17.615Z-1.2.3.4-8989",
+      "entries" : [ {
+        "1" : 1304460310421,
+        "2" : "HOURLY",
+        "3" : "world"
+      } ]
+    }
+  }, {
+    "path" : "/events/qa/smileEvent/2011/05/03/22",
+    "mtime" : 1304460317698,
+    "size" : 0,
+    "replication" : 0,
+    "isDir" : true,
+    "content" : ""
+  } ]
+}

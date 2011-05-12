@@ -1,0 +1,418 @@
+{
+  "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries",
+  "parentPath" : "/user/pierre/2011-05-10T14.15.06",
+  "entries" : [ {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00000",
+    "mtime" : 1305063799681,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 16:45:16\t27.264\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00001",
+    "mtime" : 1305063801353,
+    "size" : 100,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 16:45:17\t0.576\t1.2.3.4\t5.6.7.8"
+    }, {
+      "record" : "2011-05-10 16:45:17\t0.384\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00002",
+    "mtime" : 1305063800833,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00003",
+    "mtime" : 1305063857129,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 16:45:24\t15.168\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00004",
+    "mtime" : 1305063857538,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 16:45:24\t15.168\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00005",
+    "mtime" : 1305063866184,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:01:35\t153.024\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00006",
+    "mtime" : 1305063925276,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:01:35\t75.328\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00007",
+    "mtime" : 1305063926557,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00008",
+    "mtime" : 1305063928387,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00009",
+    "mtime" : 1305063928277,
+    "size" : 154,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:01:35\t147.264\t1.2.3.4\t5.6.7.8"
+    }, {
+      "record" : "2011-05-10 17:01:35\t82.048\t1.2.3.4\t5.6.7.8"
+    }, {
+      "record" : "2011-05-10 17:01:35\t81.088\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00010",
+    "mtime" : 1305063928656,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:02:51\t10.88\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00011",
+    "mtime" : 1305063935120,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:02:56\t77.952\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00012",
+    "mtime" : 1305063936812,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:02:58\t6.912\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00013",
+    "mtime" : 1305063943689,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:03:02\t72.064\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00014",
+    "mtime" : 1305063982154,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:03:04\t205.76\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00015",
+    "mtime" : 1305063982155,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:04:03\t3.008\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00016",
+    "mtime" : 1305063982171,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:04:06\t68.352\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00017",
+    "mtime" : 1305063982133,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:04:08\t70.72\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00018",
+    "mtime" : 1305064044473,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00019",
+    "mtime" : 1305064044407,
+    "size" : 101,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:04:14\t67.52\t1.2.3.4\t5.6.7.8"
+    }, {
+      "record" : "2011-05-10 17:04:14\t211.84\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00020",
+    "mtime" : 1305064044433,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:05:14\t6.976\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00021",
+    "mtime" : 1305064044392,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:05:20\t148.288\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00022",
+    "mtime" : 1305064052941,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:05:21\t3.136\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00023",
+    "mtime" : 1305064106543,
+    "size" : 52,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:05:22\t181.248\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00024",
+    "mtime" : 1305064106659,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:05:24\t65.088\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00025",
+    "mtime" : 1305064106497,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:06:29\t3.904\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00026",
+    "mtime" : 1305064106591,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:06:30\t9.088\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00027",
+    "mtime" : 1305064106927,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:06:33\t0.768\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00028",
+    "mtime" : 1305064115293,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:06:34\t66.048\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00029",
+    "mtime" : 1305064123606,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:06:39\t104.96\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00030",
+    "mtime" : 1305064123855,
+    "size" : 49,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:07:40\t2.88\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00031",
+    "mtime" : 1305064132417,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:07:43\t41.216\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00032",
+    "mtime" : 1305064168907,
+    "size" : 50,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:07:45\t4.608\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00033",
+    "mtime" : 1305064169449,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:07:47\t35.776\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00034",
+    "mtime" : 1305064169320,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00035",
+    "mtime" : 1305064169346,
+    "size" : 51,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ {
+      "record" : "2011-05-10 17:07:50\t34.048\t1.2.3.4\t5.6.7.8"
+    } ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00036",
+    "mtime" : 1305064177418,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00037",
+    "mtime" : 1305064177836,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00038",
+    "mtime" : 1305064186306,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00039",
+    "mtime" : 1305064194457,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00040",
+    "mtime" : 1305064194932,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00041",
+    "mtime" : 1305064194886,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00042",
+    "mtime" : 1305064203041,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00043",
+    "mtime" : 1305064202919,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00044",
+    "mtime" : 1305064203373,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00045",
+    "mtime" : 1305064203400,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00046",
+    "mtime" : 1305064203462,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00047",
+    "mtime" : 1305064211375,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  }, {
+    "path" : "/user/pierre/2011-05-10T14.15.06/timeSeries/part-r-00048",
+    "mtime" : 1305064211539,
+    "size" : 0,
+    "replication" : 3,
+    "isDir" : false,
+    "content" : [ ]
+  } ]
+}

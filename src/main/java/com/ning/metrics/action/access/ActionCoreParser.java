@@ -36,12 +36,14 @@ public class ActionCoreParser
     private final String eventName;
     private final String delimiter;
 
-    public enum ActionCoreParserFormat{
+    public enum ActionCoreParserFormat
+    {
         ACTION_CORE_FORMAT_MR("MR"),
         ACTION_CORE_FORMAT_DEFAULT("DEFAULT");
         private String parserTypeValue;
 
-        ActionCoreParserFormat(String type) {
+        ActionCoreParserFormat(String type)
+        {
             parserTypeValue = type;
         }
 
@@ -57,7 +59,8 @@ public class ActionCoreParser
     }
 
 
-    public ActionCoreParser(ActionCoreParserFormat format, String eventName, List<String> allEventFields, String delimiter){
+    public ActionCoreParser(ActionCoreParserFormat format, String eventName, List<String> allEventFields, String delimiter)
+    {
         this.format = format;
         this.allEventFields = allEventFields;
         this.eventName = eventName;
@@ -65,7 +68,8 @@ public class ActionCoreParser
     }
 
     //this method will get you a row of delimited fields with a json row input and column names
-    public String getCSVFormat(String inputRow, List<GoodwillSchemaField> columnNames) throws Exception{
+    public String getCSVFormat(String inputRow, List<GoodwillSchemaField> columnNames) throws Exception
+    {
         StringBuffer outputRow = new StringBuffer("");
         ImmutableList<Map<String, Object>> columnValues = parse(inputRow);
         logger.debug(columnValues.size());
@@ -82,7 +86,8 @@ public class ActionCoreParser
     }
 
 
-    public ImmutableList<Map<String, Object>> parse(String json) throws Exception{
+    public ImmutableList<Map<String, Object>> parse(String json) throws Exception
+    {
 
         switch (format) {
             case ACTION_CORE_FORMAT_DEFAULT:

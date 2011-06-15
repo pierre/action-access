@@ -1,6 +1,7 @@
 = action-access library
 
-The action-core is an HDFS browser over HTTP. See http://github.com/pierre/action-core.
+The action-access provides an API to browse files exposed via the action-core (See http://github.com/pierre/action-core).
+Includes parsing and converting json streams to a delimited format.
 
 = License (see LICENSE-2.0.txt file for full license)
 

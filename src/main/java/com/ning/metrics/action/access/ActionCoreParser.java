@@ -16,41 +16,37 @@
 
 package com.ning.metrics.action.access;
 
+import com.google.common.collect.ImmutableList;
+import com.ning.metrics.goodwill.access.GoodwillSchemaField;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.google.inject.internal.ImmutableList;
-
 /**
- * 
  * Action Core Parser -- hides the details of the encoding of the json
  */
-public class ActionCoreParser {
-
-
-    private static final Logger log = Logger.getLogger(ActionCoreParser.class);
-
+public class ActionCoreParser
+{
+    private static final Logger logger = Logger.getLogger(ActionCoreParser.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-
     private final ActionCoreParserFormat format;
-    private final String [] allEventFields;
+    private final List<String> allEventFields;
     private final String eventName;
+    private final String delimiter;
 
-    public enum ActionCoreParserFormat {
+    public enum ActionCoreParserFormat{
         ACTION_CORE_FORMAT_MR("MR"),
         ACTION_CORE_FORMAT_DEFAULT("DEFAULT");
-
         private String parserTypeValue;
 
         ActionCoreParserFormat(String type) {
             parserTypeValue = type;
         }
 
-        public static ActionCoreParserFormat getFromString(String in) {
+        public static ActionCoreParserFormat getFromString(String in)
+        {
             for (ActionCoreParserFormat cur : ActionCoreParserFormat.values()) {
                 if (cur.parserTypeValue.equals(in)) {
                     return cur;
@@ -61,53 +57,66 @@ public class ActionCoreParser {
     }
 
 
-    public ActionCoreParser(ActionCoreParserFormat format, String eventName, String [] allEventFields) {
+    public ActionCoreParser(ActionCoreParserFormat format, String eventName, List<String> allEventFields, String delimiter){
         this.format = format;
         this.allEventFields = allEventFields;
         this.eventName = eventName;
+        this.delimiter = delimiter;
+    }
+
+    //this method will get you a row of delimited fields with a json row input and column names
+    public String getCSVFormat(String inputRow, List<GoodwillSchemaField> columnNames) throws Exception{
+        StringBuffer outputRow = new StringBuffer("");
+        ImmutableList<Map<String, Object>> columnValues = parse(inputRow);
+        logger.debug(columnValues.size());
+        for (int i = 0; i < columnValues.size(); i++) {
+            HashMap<String, Object> columns = new HashMap(columnValues.get(i));
+            for (GoodwillSchemaField cols : columnNames) {
+                outputRow.append(columns.get(cols.getName())).append(delimiter);
+                logger.debug(outputRow.toString());
+            }
+            outputRow.append("\n");
+        }
+
+        return outputRow.toString();
     }
 
 
-    public ImmutableList<Map<String, Object>> parse(String json) throws Exception {
+    public ImmutableList<Map<String, Object>> parse(String json) throws Exception{
 
-        switch(format) {
-        case ACTION_CORE_FORMAT_DEFAULT:
-            return parseDefault(json);
-
-        case ACTION_CORE_FORMAT_MR:
-            return parseMR(json);
-
-        default:
-            throw new RuntimeException("Format " + format + " not supported");
+        switch (format) {
+            case ACTION_CORE_FORMAT_DEFAULT:
+                return parseDefault(json);
+            case ACTION_CORE_FORMAT_MR:
+                return parseMR(json);
+            default:
+                throw new RuntimeException("Format " + format + " not supported");
         }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private ImmutableList<Map<String, Object>> parseMR(String json) throws Exception {
-
+    private ImmutableList<Map<String, Object>> parseMR(String json) throws Exception
+    {
         ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
-
         Map eventTop = mapper.readValue(json, Map.class);
         List<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
         for (Map entryDirectory : entriesDirectory) {
-
             List<Map> entries = null;
-            Object entriesRow =  null;
+            Object entriesRow = null;
             try {
-                entriesRow =  entryDirectory.get("content");
+                entriesRow = entryDirectory.get("content");
                 if (entriesRow == null) {
                     continue;
                 }
-                if (entriesRow instanceof java.lang.String && ((String)entriesRow).equals("")) {
+                if (entriesRow instanceof String && ((String) entriesRow).equals("")) {
                     continue;
                 }
-
                 entries = (List<Map>) entriesRow;
-            } catch (Exception e) {
-                log.error("Failed to deserialize the event " + entriesRow.toString());
+            }
+            catch (Exception e) {
+                logger.error("Failed to deserialize the event " + entriesRow.toString());
             }
             for (Map<String, Object> event : entries) {
-
                 Map<String, Object> simplifiedEvent = extractEventTabSep((String) event.get("record"));
                 builder.add(simplifiedEvent);
             }
@@ -116,16 +125,14 @@ public class ActionCoreParser {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private ImmutableList<Map<String, Object>> parseDefault(String json) throws Exception {
-
+    private ImmutableList<Map<String, Object>> parseDefault(String json) throws Exception
+    {
         ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
-
         Map eventTop = mapper.readValue(json, Map.class);
         List<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
         for (Map entryDirectory : entriesDirectory) {
-
-            Object contentRow =  entryDirectory.get("content");
-            if (contentRow instanceof java.lang.String && ((String) contentRow).equals("")) {
+            Object contentRow = entryDirectory.get("content");
+            if (contentRow instanceof String && ((String) contentRow).equals("")) {
                 continue;
             }
             Map entryContent = (Map) contentRow;
@@ -139,14 +146,13 @@ public class ActionCoreParser {
         return builder.build();
     }
 
-    private Map<String, Object> extractEvent(Map<String, Object> eventFull) {
-
+    private Map<String, Object> extractEvent(Map<String, Object> eventFull)
+    {
         Map<String, Object> result = new HashMap<String, Object>();
-
         for (String key : allEventFields) {
             Object value = eventFull.get(key);
             if (value == null) {
-                log.warn("Event " + eventName + " is missing key " + key);
+                logger.warn("Event " + eventName + " is missing key " + key);
                 continue;
             }
             result.put(key, value);
@@ -154,18 +160,17 @@ public class ActionCoreParser {
         return result;
     }
 
-    private Map<String, Object> extractEventTabSep(String event) {
+    private Map<String, Object> extractEventTabSep(String event)
+    {
         Map<String, Object> result = new HashMap<String, Object>();
         if (event == null) {
             return result;
         }
-
-        String [] parts = event.split("\\t");
-        if (parts == null || parts.length != allEventFields.length) {
-            log.warn("Unexpected event content size = " + ((parts == null) ? 0 : parts.length));
+        String[] parts = event.split("\\t");
+        if (parts == null || parts.length != allEventFields.size()) {
+            logger.warn("Unexpected event content size = " + ((parts == null) ? 0 : parts.length));
             return result;
         }
-
         int i = 0;
         for (String key : allEventFields) {
             result.put(key, parts[i]);
@@ -173,5 +178,4 @@ public class ActionCoreParser {
         }
         return result;
     }
-
 }

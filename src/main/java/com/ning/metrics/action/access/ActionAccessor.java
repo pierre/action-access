@@ -46,14 +46,16 @@ public class ActionAccessor
     private final String url;
     private final String DELIMITER = "|";
 
-    public ActionAccessor(String host, int port){
+    public ActionAccessor(String host, int port)
+    {
         this.host = host;
         this.port = port;
         this.url = String.format("http://%s:%d/rest/%s/json?path=", host, port, ACTION_CORE_API_VERSION);
         client = createHttpClient();
     }
 
-    private static AsyncHttpClient createHttpClient(){
+    private static AsyncHttpClient createHttpClient()
+    {
         // Don't limit the number of connections per host
         // See https://github.com/ning/async-http-client/issues/issue/28
         AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
@@ -64,7 +66,8 @@ public class ActionAccessor
     /**
      * Close the underlying http client
      */
-    public synchronized void close(){
+    public synchronized void close()
+    {
         if (client != null) {
             client.close();
         }
@@ -76,7 +79,8 @@ public class ActionAccessor
     public ImmutableList<Map<String, Object>> getPath(final String eventName, final String path,
                                                       final ActionCoreParserFormat format,
                                                       final ArrayList<String> desiredEventFields,
-                                                      boolean recursive, boolean raw, long timeout){
+                                                      boolean recursive, boolean raw, long timeout)
+    {
         InputStream in = null;
         try {
             Future<InputStream> future = getPath(eventName, path, recursive, raw);
@@ -111,7 +115,10 @@ public class ActionAccessor
      * <p/>
      * Client is responsible to close the stream
      */
-    public Future<InputStream> getPath(final String eventName, final String path, boolean recursive, boolean raw){
+
+
+    public Future<InputStream> getPath(final String eventName, final String path, boolean recursive, boolean raw)
+    {
         try {
             String fullUrl = formatPath(path, recursive, raw);
             log.debug(String.format("ActionAccessor fetching %s", fullUrl));
@@ -142,7 +149,8 @@ public class ActionAccessor
     }
 
 
-    public String getJsonFromStreamAndClose(InputStream in){
+    public String getJsonFromStreamAndClose(InputStream in)
+    {
         if (in == null) {
             return null;
         }
@@ -167,7 +175,8 @@ public class ActionAccessor
     }
 
 
-    private String formatPath(final String path, boolean recursive, boolean raw){
+    private String formatPath(final String path, boolean recursive, boolean raw)
+    {
         StringBuilder tmp = new StringBuilder();
         tmp.append(String.format("%s%s", url, path));
         String queryParam = "&";
@@ -178,7 +187,8 @@ public class ActionAccessor
         return tmp.toString();
     }
 
-    private void closeStream(InputStream in){
+    private void closeStream(InputStream in)
+    {
         if (in != null) {
             try {
                 in.close();

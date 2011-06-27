@@ -17,12 +17,14 @@
 package com.ning.metrics.action.access;
 
 import com.google.common.collect.ImmutableList;
-import com.ning.metrics.goodwill.access.GoodwillSchemaField;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+
+//import java.util.Date;
 
 /**
  * Action Core Parser -- hides the details of the encoding of the json
@@ -65,24 +67,6 @@ public class ActionCoreParser
         this.allEventFields = allEventFields;
         this.eventName = eventName;
         this.delimiter = delimiter;
-    }
-
-    //this method will get you a row of delimited fields with a json row input and column names
-    public String getCSVFormat(String inputRow, List<GoodwillSchemaField> columnNames) throws Exception
-    {
-        StringBuffer outputRow = new StringBuffer("");
-        ImmutableList<Map<String, Object>> columnValues = parse(inputRow);
-        logger.debug(columnValues.size());
-        for (int i = 0; i < columnValues.size(); i++) {
-            HashMap<String, Object> columns = new HashMap(columnValues.get(i));
-            for (GoodwillSchemaField cols : columnNames) {
-                outputRow.append(columns.get(cols.getName())).append(delimiter);
-                logger.debug(outputRow.toString());
-            }
-            outputRow.append("\n");
-        }
-
-        return outputRow.toString();
     }
 
 
@@ -140,13 +124,12 @@ public class ActionCoreParser
             if (contentRow instanceof String && ((String) contentRow).equals("")) {
                 continue;
             }
-            Map entryContent = (Map) contentRow;
-            List<Map> entries = (List<Map>) entryContent.get("entries");
-            for (Map<String, Object> event : entries) {
-
+            ArrayList<Map> entryContent = (ArrayList<Map>) contentRow;
+            for (Map<String, Object> event : entryContent) {
                 Map<String, Object> simplifiedEvent = extractEvent(event);
                 builder.add(simplifiedEvent);
             }
+
         }
         return builder.build();
     }

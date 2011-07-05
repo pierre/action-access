@@ -24,8 +24,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-//import java.util.Date;
-
 /**
  * Action Core Parser -- hides the details of the encoding of the json
  */

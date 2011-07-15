@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -29,7 +30,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class ActionCoreParser
 {
-    private static final Logger logger = Logger.getLogger(ActionCoreParser.class);
+    private static final Logger log = LoggerFactory.getLogger(ActionCoreParser.class);
+
     private static final ObjectMapper mapper = new ObjectMapper();
     private final ActionCoreParserFormat format;
     private final List<String> allEventFields;
@@ -101,7 +103,7 @@ public class ActionCoreParser
                 entries = (List<Map>) entriesRow;
             }
             catch (Exception e) {
-                logger.error("Failed to deserialize the event " + entriesRow.toString());
+                log.error("Failed to deserialize the event {}", entriesRow);
             }
             for (Map<String, Object> event : entries) {
                 Map<String, Object> simplifiedEvent = extractEventTabSep((String) event.get("record"));
@@ -138,7 +140,7 @@ public class ActionCoreParser
         for (String key : allEventFields) {
             Object value = eventFull.get(key);
             if (value == null) {
-                logger.warn("Event " + eventName + " is missing key " + key);
+                log.warn("Event {} is missing key {}", eventName,  key);
                 continue;
             }
             result.put(key, value);
@@ -154,7 +156,7 @@ public class ActionCoreParser
         }
         String[] parts = event.split("\\t");
         if (parts == null || parts.length != allEventFields.size()) {
-            logger.warn("Unexpected event content size = " + ((parts == null) ? 0 : parts.length));
+            log.warn("Unexpected event content size = {}", ((parts == null) ? 0 : parts.length));
             return result;
         }
         int i = 0;

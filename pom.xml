@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -33,26 +34,58 @@
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
             <version>1.6.4</version>
-      </dependency>
+            <exclusions>
+                <!-- The async-http-client relies on slf4j 1.6.x -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>r09</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>test</scope>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.8.0</version>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+            <version>7.4.4.v20110707</version>
+            <scope>test</scope>
+        </dependency>
+         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>7.4.0.v20110414</version>
+            <version>7.4.4.v20110707</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>7.4.4.v20110707</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -63,15 +96,43 @@
         </dependency>
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>log4j.xml</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
+            <plugin>
+                <groupId>com.ning.maven.plugins</groupId>
+                <artifactId>maven-dependency-versions-check-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.ning.maven.plugins</groupId>
+                <artifactId>maven-duplicate-finder-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                    <!-- That's for Jetty -->
+                    <ignoredResources>
+                        <ignoredResource>about.html</ignoredResource>
+                    </ignoredResources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -92,13 +153,14 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <failOnWarning>false</failOnWarning>
+                            <failOnWarning>true</failOnWarning>
+                            <!-- We want slf4j-simple for tests -->
+                            <ignoreNonCompile>true</ignoreNonCompile>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <!-- See reporting section for configuration -->
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>0.7</version>
@@ -108,17 +170,17 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                            <configuration>
-                                <excludes>
-                                    <!-- For some reason, useIdeaDefaultExcludes doesn't pick up .idea directory -->
-                                    <exclude>.idea/**</exclude>
-                                    <exclude>.git/**</exclude>
-                                    <exclude>.gitignore</exclude>
-                                    <exclude>deploy.sh</exclude>
-                                    <exclude>src/site/**</exclude>
-                                    <exclude>src/test/resources/**</exclude>
-                                </excludes>
-                            </configuration>
+                        <configuration>
+                            <excludes>
+                                <!-- For some reason, useIdeaDefaultExcludes doesn't pick up .idea directory -->
+                                <exclude>.idea/**</exclude>
+                                <exclude>.git/**</exclude>
+                                <exclude>.gitignore</exclude>
+                                <exclude>deploy.sh</exclude>
+                                <exclude>src/site/**</exclude>
+                                <exclude>src/test/resources/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -157,17 +219,22 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                                      <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
                             <filters>
                                 <filter>
                                     <artifact>${project.groupId}:${project.artifactId}</artifact>
-                                    <excludes>
-                                        <exclude>log4j.xml</exclude>
-                                    </excludes>
                                 </filter>
                             </filters>
+                            <relocations>
+                              <relocation>
+                                <!-- Relocate Jackson to avoid conflicts -->
+                                <pattern>org.codehaus.jackson</pattern>
+                                <shadedPattern>com.ning.metrics.action-access.org.codehaus.jackson</shadedPattern>
+                              </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -182,11 +249,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.6</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <log4j.configuration>file:${project.basedir}/src/main/resources/log4j.xml</log4j.configuration>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
         </plugins>
     </build>

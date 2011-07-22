@@ -45,6 +45,10 @@ public class ActionAccessor
 {
     private static final Logger log = LoggerFactory.getLogger(ActionAccessor.class);
 
+    private static final String USER_AGENT = "action-access/1.0";
+    // On our testing, we were doing 600 MB per minute on upload (80 megabits/second)
+    private static final int CONNECTION_TIMEOUT_IN_MS = 5 * 60 * 1000; // 5 minutes
+
     private static final String ACTION_CORE_API_VERSION = "1.0";
     private final AsyncHttpClient client;
     private final String host;
@@ -244,8 +248,11 @@ public class ActionAccessor
     {
         // Don't limit the number of connections per host
         // See https://github.com/ning/async-http-client/issues/issue/28
-        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-        builder.setMaximumConnectionsPerHost(-1);
+        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder()
+            .setMaximumConnectionsPerHost(-1)
+            .setUserAgent(USER_AGENT)
+            .setConnectionTimeoutInMs(CONNECTION_TIMEOUT_IN_MS)
+            .setRequestTimeoutInMs(CONNECTION_TIMEOUT_IN_MS);
         return new AsyncHttpClient(builder.build());
     }
 }

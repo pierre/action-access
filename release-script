@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# After release:perform, do
+#
+#  ./release-script metrics.action-access-0.0.1 metrics.action-access-0.0.2
+
+last="$1"
+new="$2"
+git log --no-merges $new ^$last > doc/ChangeLog-$new
+git shortlog --no-merges $new ^$last > doc/ShortLog-$new

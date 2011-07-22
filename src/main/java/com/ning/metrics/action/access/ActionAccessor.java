@@ -57,15 +57,6 @@ public class ActionAccessor
         client = createHttpClient();
     }
 
-    private static AsyncHttpClient createHttpClient()
-    {
-        // Don't limit the number of connections per host
-        // See https://github.com/ning/async-http-client/issues/issue/28
-        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-        builder.setMaximumConnectionsPerHost(-1);
-        return new AsyncHttpClient(builder.build());
-    }
-
     /**
      * Close the underlying http client
      */
@@ -79,22 +70,21 @@ public class ActionAccessor
     /**
      * Synchronous interface: Returns a list of bean events.
      */
-    public ImmutableList<Map<String, Object>> getPath(final String eventName, final String path,
+    public ImmutableList<Map<String, Object>> getPath(final String path,
                                                       final ActionCoreParserFormat format,
                                                       final ArrayList<String> desiredEventFields,
                                                       final boolean recursive,
                                                       final boolean raw,
                                                       final long timeout)
     {
-        InputStream in = null;
         try {
-            Future<InputStream> future = getPath(eventName, path, recursive, raw);
-            in = future.get(timeout, TimeUnit.SECONDS);
-            String json = getJsonFromStreamAndClose(in);
+            final Future<InputStream> future = getPath(path, recursive, raw);
+            final InputStream in = future.get(timeout, TimeUnit.SECONDS);
+            final String json = getJsonFromStreamAndClose(in);
             if (json == null) {
                 return null;
             }
-            ActionCoreParser parser = new ActionCoreParser(format, eventName, desiredEventFields, DELIMITER);
+            final ActionCoreParser parser = new ActionCoreParser(format, desiredEventFields, DELIMITER);
             return parser.parse(json);
         }
         catch (IOException ioe) {
@@ -121,21 +111,19 @@ public class ActionAccessor
      * <p/>
      * Client is responsible to close the stream
      */
-
-
-    public Future<InputStream> getPath(final String eventName, final String path, boolean recursive, boolean raw)
+    public Future<InputStream> getPath(final String path, final boolean recursive, final boolean raw)
     {
         try {
-            String fullUrl = formatPath(path, recursive, raw);
+            final String fullUrl = formatPath(path, recursive, raw);
             log.debug("ActionAccessor fetching {}", fullUrl);
             return client.prepareGet(fullUrl).addHeader("Accept", "application/json").execute(new AsyncCompletionHandler<InputStream>()
             {
                 @Override
-                public InputStream onCompleted(Response response) throws Exception
+                public InputStream onCompleted(final Response response) throws Exception
                 {
                     if (response.getStatusCode() != 200) {
                         log.warn("Failed to fetch path {} from {} got http status {}",
-                            new Object[] {path, url, response.getStatusCode()});
+                            new Object[]{path, url, response.getStatusCode()});
                         return null;
                     }
                     return response.getResponseBodyAsStream();
@@ -149,22 +137,33 @@ public class ActionAccessor
             });
         }
         catch (IOException e) {
-            log.warn("Error getting path {} from {}:{} ({})", new Object[] {path, host, port, e.getLocalizedMessage()});
+            log.warn("Error getting path {} from {}:{} ({})", new Object[]{path, host, port, e.getLocalizedMessage()});
             return null;
         }
     }
 
+    private String formatPath(final String path, final boolean recursive, final boolean raw)
+    {
+        final StringBuilder tmp = new StringBuilder();
+        tmp.append(String.format("%s%s", url, path));
+        final String queryParam = "&";
+        tmp.append(queryParam);
+        tmp.append(recursive ? "recursive=true" : "recursive=false");
+        tmp.append(queryParam);
+        tmp.append(raw ? "raw=true" : "raw=false");
+        return tmp.toString();
+    }
 
-    public String getJsonFromStreamAndClose(InputStream in)
+    private String getJsonFromStreamAndClose(final InputStream in)
     {
         if (in == null) {
             return null;
         }
         try {
 
-            Reader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            int read = 0;
-            char[] temp = new char[1024];
+            final Reader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            int read;
+            final char[] temp = new char[1024];
             final Writer writer = new StringWriter();
             while ((read = reader.read(temp)) != -1) {
                 writer.write(temp, 0, read);
@@ -180,20 +179,7 @@ public class ActionAccessor
         }
     }
 
-
-    private String formatPath(final String path, boolean recursive, boolean raw)
-    {
-        StringBuilder tmp = new StringBuilder();
-        tmp.append(String.format("%s%s", url, path));
-        String queryParam = "&";
-        tmp.append(queryParam);
-        tmp.append(recursive ? "recursive=true" : "recursive=false");
-        tmp.append(queryParam);
-        tmp.append(raw ? "raw=true" : "raw=false");
-        return tmp.toString();
-    }
-
-    private void closeStream(InputStream in)
+    private void closeStream(final InputStream in)
     {
         if (in != null) {
             try {
@@ -203,5 +189,14 @@ public class ActionAccessor
                 log.warn("Failed to close http-client - provided InputStream: {}", e.getLocalizedMessage());
             }
         }
+    }
+
+    private static AsyncHttpClient createHttpClient()
+    {
+        // Don't limit the number of connections per host
+        // See https://github.com/ning/async-http-client/issues/issue/28
+        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+        builder.setMaximumConnectionsPerHost(-1);
+        return new AsyncHttpClient(builder.build());
     }
 }

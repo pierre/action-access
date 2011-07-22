@@ -17,13 +17,13 @@
 package com.ning.metrics.action.access;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Action Core Parser -- hides the details of the encoding of the json
@@ -35,23 +35,21 @@ public class ActionCoreParser
     private static final ObjectMapper mapper = new ObjectMapper();
     private final ActionCoreParserFormat format;
     private final List<String> allEventFields;
-    private final String eventName;
-    private final String delimiter;
 
     public enum ActionCoreParserFormat
     {
         ACTION_CORE_FORMAT_MR("MR"),
         ACTION_CORE_FORMAT_DEFAULT("DEFAULT");
-        private String parserTypeValue;
+        private final String parserTypeValue;
 
-        ActionCoreParserFormat(String type)
+        ActionCoreParserFormat(final String type)
         {
             parserTypeValue = type;
         }
 
-        public static ActionCoreParserFormat getFromString(String in)
+        public static ActionCoreParserFormat getFromString(final String in)
         {
-            for (ActionCoreParserFormat cur : ActionCoreParserFormat.values()) {
+            for (final ActionCoreParserFormat cur : ActionCoreParserFormat.values()) {
                 if (cur.parserTypeValue.equals(in)) {
                     return cur;
                 }
@@ -61,18 +59,14 @@ public class ActionCoreParser
     }
 
 
-    public ActionCoreParser(ActionCoreParserFormat format, String eventName, List<String> allEventFields, String delimiter)
+    public ActionCoreParser(final ActionCoreParserFormat format, final List<String> allEventFields, final String delimiter)
     {
         this.format = format;
         this.allEventFields = allEventFields;
-        this.eventName = eventName;
-        this.delimiter = delimiter;
     }
 
-
-    public ImmutableList<Map<String, Object>> parse(String json) throws Exception
+    public ImmutableList<Map<String, Object>> parse(final String json) throws Exception
     {
-
         switch (format) {
             case ACTION_CORE_FORMAT_DEFAULT:
                 return parseDefault(json);
@@ -84,12 +78,13 @@ public class ActionCoreParser
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private ImmutableList<Map<String, Object>> parseMR(String json) throws Exception
+    private ImmutableList<Map<String, Object>> parseMR(final String json) throws Exception
     {
-        ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
-        Map eventTop = mapper.readValue(json, Map.class);
-        List<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
-        for (Map entryDirectory : entriesDirectory) {
+        final ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
+        final Map eventTop = mapper.readValue(json, Map.class);
+
+        final Iterable<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
+        for (final Map entryDirectory : entriesDirectory) {
             List<Map> entries = null;
             Object entriesRow = null;
             try {
@@ -97,7 +92,7 @@ public class ActionCoreParser
                 if (entriesRow == null) {
                     continue;
                 }
-                if (entriesRow instanceof String && ((String) entriesRow).equals("")) {
+                if (entriesRow instanceof String && entriesRow.equals("")) {
                     continue;
                 }
                 entries = (List<Map>) entriesRow;
@@ -105,65 +100,74 @@ public class ActionCoreParser
             catch (Exception e) {
                 log.error("Failed to deserialize the event {}", entriesRow);
             }
-            for (Map<String, Object> event : entries) {
-                Map<String, Object> simplifiedEvent = extractEventTabSep((String) event.get("record"));
-                builder.add(simplifiedEvent);
+
+            if (entries != null) {
+                for (final Map<String, Object> event : entries) {
+                    final Map<String, Object> simplifiedEvent = extractEventTabSep((String) event.get("record"));
+                    builder.add(simplifiedEvent);
+                }
             }
         }
         return builder.build();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private ImmutableList<Map<String, Object>> parseDefault(String json) throws Exception
+    private ImmutableList<Map<String, Object>> parseDefault(final String json) throws Exception
     {
-        ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
-        Map eventTop = mapper.readValue(json, Map.class);
-        List<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
-        for (Map entryDirectory : entriesDirectory) {
-            Object contentRow = entryDirectory.get("content");
-            if (contentRow instanceof String && ((String) contentRow).equals("")) {
+        final ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<Map<String, Object>>();
+        final Map eventTop = mapper.readValue(json, Map.class);
+
+        final Iterable<Map> entriesDirectory = (List<Map>) eventTop.get("entries");
+        for (final Map entryDirectory : entriesDirectory) {
+            final Object contentRow = entryDirectory.get("content");
+            if (contentRow instanceof String && contentRow.equals("")) {
                 continue;
             }
-            ArrayList<Map> entryContent = (ArrayList<Map>) contentRow;
-            for (Map<String, Object> event : entryContent) {
-                Map<String, Object> simplifiedEvent = extractEvent(event);
+
+            final Iterable<Map> entryContent = (Iterable<Map>) contentRow;
+            for (final Map<String, Object> event : entryContent) {
+                final Map<String, Object> simplifiedEvent = extractEvent(event);
                 builder.add(simplifiedEvent);
             }
-
         }
+
         return builder.build();
     }
 
-    private Map<String, Object> extractEvent(Map<String, Object> eventFull)
+    private Map<String, Object> extractEvent(final Map<String, Object> eventFull)
     {
-        Map<String, Object> result = new HashMap<String, Object>();
-        for (String key : allEventFields) {
-            Object value = eventFull.get(key);
+        final Map<String, Object> result = new HashMap<String, Object>();
+        for (final String key : allEventFields) {
+            final Object value = eventFull.get(key);
             if (value == null) {
-                log.warn("Event {} is missing key {}", eventName,  key);
+                log.warn("Event {} is missing key {}", eventFull, key);
                 continue;
             }
             result.put(key, value);
         }
+
         return result;
     }
 
-    private Map<String, Object> extractEventTabSep(String event)
+    private Map<String, Object> extractEventTabSep(final String event)
     {
-        Map<String, Object> result = new HashMap<String, Object>();
+        final Map<String, Object> result = new HashMap<String, Object>();
         if (event == null) {
             return result;
         }
-        String[] parts = event.split("\\t");
+
+        final String[] parts = event.split("\\t");
         if (parts == null || parts.length != allEventFields.size()) {
-            log.warn("Unexpected event content size = {}", ((parts == null) ? 0 : parts.length));
+            log.warn("Unexpected event content size = {}", parts == null ? 0 : parts.length);
             return result;
         }
+
         int i = 0;
-        for (String key : allEventFields) {
+        for (final String key : allEventFields) {
             result.put(key, parts[i]);
             i++;
         }
+
         return result;
     }
 }

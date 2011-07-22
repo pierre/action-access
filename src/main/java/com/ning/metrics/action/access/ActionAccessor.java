@@ -20,12 +20,15 @@ import com.google.common.collect.ImmutableList;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.Request;
 import com.ning.http.client.Response;
 import com.ning.metrics.action.access.ActionCoreParser.ActionCoreParserFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -140,6 +143,52 @@ public class ActionAccessor
             log.warn("Error getting path {} from {}:{} ({})", new Object[]{path, host, port, e.getLocalizedMessage()});
             return null;
         }
+    }
+
+    /**
+     * Asynchronous interface to upload files to HDFS
+     *
+     * @param file       local file to upload
+     * @param outputPath full path on HDFS
+     * @return a Future on the action-core Response
+     * @throws IOException generic I/O Exception
+     */
+    public ListenableFuture<Response> upload(final File file, final String outputPath) throws IOException
+    {
+        return upload(file, outputPath, false, (short) 3, -1, "u=rw,go=r");
+    }
+
+    /**
+     * Asynchronous interface to upload files to HDFS
+     *
+     * @param file        local file to upload
+     * @param outputPath  full path on HDFS
+     * @param overwrite   whether an existing file should be overwritten on HDFS
+     * @param replication replication factor of the file
+     * @param blocksize   blocksize for I/O
+     * @param permission  file's permissions
+     * @return a Future on the action-core response
+     * @throws IOException generic I/O Exception
+     */
+    public ListenableFuture<Response> upload(
+        final File file,
+        final String outputPath,
+        final boolean overwrite,
+        final short replication,
+        final long blocksize,
+        final String permission
+    ) throws IOException
+    {
+        final Request request = client.preparePost(String.format("http://%s:%d/rest/%s", host, port, ACTION_CORE_API_VERSION))
+            .setBody(file)
+            .addQueryParameter("path", outputPath)
+            .addQueryParameter("overwrite", String.valueOf(overwrite))
+            .addQueryParameter("replication", String.valueOf(replication))
+            .addQueryParameter("blocksize", String.valueOf(blocksize))
+            .addQueryParameter("permission", permission)
+            .build();
+        log.info("Sending local file to HDFS: {}", file.getAbsolutePath());
+        return client.executeRequest(request);
     }
 
     private String formatPath(final String path, final boolean recursive, final boolean raw)

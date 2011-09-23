@@ -20,9 +20,15 @@ import com.google.common.collect.ImmutableList;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.Request;
 import com.ning.http.client.Response;
 import com.ning.metrics.action.access.ActionCoreParser.ActionCoreParserFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,11 +40,15 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.log4j.Logger;
 
 public class ActionAccessor
 {
-    private static final Logger log = Logger.getLogger(ActionAccessor.class);
+    private static final Logger log = LoggerFactory.getLogger(ActionAccessor.class);
+
+    private static final String USER_AGENT = "action-access/1.0";
+    // On our testing, we were doing 600 MB per minute on upload (80 megabits/second)
+    private static final int CONNECTION_TIMEOUT_IN_MS = 5 * 60 * 1000; // 5 minutes
+
     private static final String ACTION_CORE_API_VERSION = "1.0";
     private final AsyncHttpClient client;
     private final String host;
@@ -46,25 +56,19 @@ public class ActionAccessor
     private final String url;
     private final String DELIMITER = "|";
 
-    public ActionAccessor(String host, int port){
+    public ActionAccessor(final String host, final int port)
+    {
         this.host = host;
         this.port = port;
         this.url = String.format("http://%s:%d/rest/%s/json?path=", host, port, ACTION_CORE_API_VERSION);
         client = createHttpClient();
     }
 
-    private static AsyncHttpClient createHttpClient(){
-        // Don't limit the number of connections per host
-        // See https://github.com/ning/async-http-client/issues/issue/28
-        AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-        builder.setMaximumConnectionsPerHost(-1);
-        return new AsyncHttpClient(builder.build());
-    }
-
     /**
      * Close the underlying http client
      */
-    public synchronized void close(){
+    public synchronized void close()
+    {
         if (client != null) {
             client.close();
         }
@@ -73,35 +77,38 @@ public class ActionAccessor
     /**
      * Synchronous interface: Returns a list of bean events.
      */
-    public ImmutableList<Map<String, Object>> getPath(final String eventName, final String path,
+    public ImmutableList<Map<String, Object>> getPath(final String path,
                                                       final ActionCoreParserFormat format,
                                                       final ArrayList<String> desiredEventFields,
-                                                      boolean recursive, boolean raw, long timeout){
-        InputStream in = null;
+                                                      final boolean recursive,
+                                                      final boolean raw,
+                                                      final long timeout)
+    {
         try {
-            Future<InputStream> future = getPath(eventName, path, recursive, raw);
-            in = future.get(timeout, TimeUnit.SECONDS);
-            String json = getJsonFromStreamAndClose(in);
+            final Future<InputStream> future = getPath(path, recursive, raw);
+            final InputStream in = future.get(timeout, TimeUnit.SECONDS);
+            final String json = getJsonFromStreamAndClose(in);
             if (json == null) {
                 return null;
             }
-            ActionCoreParser parser = new ActionCoreParser(format, eventName, desiredEventFields, DELIMITER);
+            final ActionCoreParser parser = new ActionCoreParser(format, desiredEventFields, DELIMITER);
             return parser.parse(json);
         }
         catch (IOException ioe) {
-            log.warn("IOException : Failed to connect to action code : url = " + url + ", error = " + ioe.getMessage());
+            log.warn("IOException: Failed to connect to action code: url = {}, error = {}", url, ioe.getMessage());
             return null;
         }
         catch (InterruptedException ie) {
-            log.warn("Thread got interrupted : Failed to connect to action code : url = " + url + ", error = " + ie.getMessage());
+            log.warn("Thread got interrupted: Failed to connect to action code: url = {}, error =  {}", url, ie.getMessage());
+            Thread.currentThread().interrupt();
             return null;
         }
         catch (TimeoutException toe) {
-            log.warn("Timeout: Failed to connect to action code within " + timeout + " sec, : url = " + url);
+            log.warn("Timeout: Failed to connect to action code within {} sec, url = {}", timeout, url);
             return null;
         }
-        catch (Throwable othere) {
-            log.error("Unexpected exception while connecting to action core, url =  " + url, othere);
+        catch (Throwable other) {
+            log.error("Unexpected exception while connecting to action core, url = {}, error = {}", url, other.getMessage());
             return null;
         }
     }
@@ -111,18 +118,19 @@ public class ActionAccessor
      * <p/>
      * Client is responsible to close the stream
      */
-    public Future<InputStream> getPath(final String eventName, final String path, boolean recursive, boolean raw){
+    public Future<InputStream> getPath(final String path, final boolean recursive, final boolean raw)
+    {
         try {
-            String fullUrl = formatPath(path, recursive, raw);
-            log.debug(String.format("ActionAccessor fetching %s", fullUrl));
+            final String fullUrl = formatPath(path, recursive, raw);
+            log.debug("ActionAccessor fetching {}", fullUrl);
             return client.prepareGet(fullUrl).addHeader("Accept", "application/json").execute(new AsyncCompletionHandler<InputStream>()
             {
                 @Override
-                public InputStream onCompleted(Response response) throws Exception
+                public InputStream onCompleted(final Response response) throws Exception
                 {
                     if (response.getStatusCode() != 200) {
-                        log.warn(String.format("Failed to fetch path %s from %s got http status %d",
-                            path, url, response.getStatusCode()));
+                        log.warn("Failed to fetch path {} from {} got http status {}",
+                            new Object[]{path, url, response.getStatusCode()});
                         return null;
                     }
                     return response.getResponseBodyAsStream();
@@ -131,46 +139,67 @@ public class ActionAccessor
                 @Override
                 public void onThrowable(Throwable t)
                 {
-                    log.warn(t);
+                    log.warn("Failed to contact action-core", t);
                 }
             });
         }
         catch (IOException e) {
-            log.warn(String.format("Error getting path %s from %s:%d (%s)", path, host, port, e.getLocalizedMessage()));
+            log.warn("Error getting path {} from {}:{} ({})", new Object[]{path, host, port, e.getLocalizedMessage()});
             return null;
         }
     }
 
-
-    public String getJsonFromStreamAndClose(InputStream in){
-        if (in == null) {
-            return null;
-        }
-        try {
-
-            Reader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            int read = 0;
-            char[] temp = new char[1024];
-            final Writer writer = new StringWriter();
-            while ((read = reader.read(temp)) != -1) {
-                writer.write(temp, 0, read);
-            }
-            return writer.toString();
-        }
-        catch (IOException ioe) {
-            log.warn("Failed to read from stream " + ioe.getMessage());
-            return null;
-        }
-        finally {
-            closeStream(in);
-        }
+    /**
+     * Asynchronous interface to upload files to HDFS
+     *
+     * @param file       local file to upload
+     * @param outputPath full path on HDFS
+     * @return a Future on the action-core Response
+     * @throws IOException generic I/O Exception
+     */
+    public ListenableFuture<Response> upload(final File file, final String outputPath) throws IOException
+    {
+        return upload(file, outputPath, false, (short) 3, -1, "u=rw,go=r");
     }
 
+    /**
+     * Asynchronous interface to upload files to HDFS
+     *
+     * @param file        local file to upload
+     * @param outputPath  full path on HDFS
+     * @param overwrite   whether an existing file should be overwritten on HDFS
+     * @param replication replication factor of the file
+     * @param blocksize   blocksize for I/O
+     * @param permission  file's permissions
+     * @return a Future on the action-core response
+     * @throws IOException generic I/O Exception
+     */
+    public ListenableFuture<Response> upload(
+        final File file,
+        final String outputPath,
+        final boolean overwrite,
+        final short replication,
+        final long blocksize,
+        final String permission
+    ) throws IOException
+    {
+        final Request request = client.preparePost(String.format("http://%s:%d/rest/%s", host, port, ACTION_CORE_API_VERSION))
+            .setBody(file)
+            .addQueryParameter("path", outputPath)
+            .addQueryParameter("overwrite", String.valueOf(overwrite))
+            .addQueryParameter("replication", String.valueOf(replication))
+            .addQueryParameter("blocksize", String.valueOf(blocksize))
+            .addQueryParameter("permission", permission)
+            .build();
+        log.info("Sending local file to HDFS: {}", file.getAbsolutePath());
+        return client.executeRequest(request);
+    }
 
-    private String formatPath(final String path, boolean recursive, boolean raw){
-        StringBuilder tmp = new StringBuilder();
+    private String formatPath(final String path, final boolean recursive, final boolean raw)
+    {
+        final StringBuilder tmp = new StringBuilder();
         tmp.append(String.format("%s%s", url, path));
-        String queryParam = "&";
+        final String queryParam = "&";
         tmp.append(queryParam);
         tmp.append(recursive ? "recursive=true" : "recursive=false");
         tmp.append(queryParam);
@@ -178,14 +207,52 @@ public class ActionAccessor
         return tmp.toString();
     }
 
-    private void closeStream(InputStream in){
+    private String getJsonFromStreamAndClose(final InputStream in)
+    {
+        if (in == null) {
+            return null;
+        }
+        try {
+
+            final Reader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            int read;
+            final char[] temp = new char[1024];
+            final Writer writer = new StringWriter();
+            while ((read = reader.read(temp)) != -1) {
+                writer.write(temp, 0, read);
+            }
+            return writer.toString();
+        }
+        catch (IOException ioe) {
+            log.warn("Failed to read from stream {}", ioe.getMessage());
+            return null;
+        }
+        finally {
+            closeStream(in);
+        }
+    }
+
+    private void closeStream(final InputStream in)
+    {
         if (in != null) {
             try {
                 in.close();
             }
             catch (IOException e) {
-                log.warn(String.format("Failed to close http-client - provided InputStream: %s", e.getLocalizedMessage()));
+                log.warn("Failed to close http-client - provided InputStream: {}", e.getLocalizedMessage());
             }
         }
+    }
+
+    private static AsyncHttpClient createHttpClient()
+    {
+        // Don't limit the number of connections per host
+        // See https://github.com/ning/async-http-client/issues/issue/28
+        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder()
+            .setMaximumConnectionsPerHost(-1)
+            .setUserAgent(USER_AGENT)
+            .setConnectionTimeoutInMs(CONNECTION_TIMEOUT_IN_MS)
+            .setRequestTimeoutInMs(CONNECTION_TIMEOUT_IN_MS);
+        return new AsyncHttpClient(builder.build());
     }
 }

@@ -208,7 +208,7 @@ public class TestActionAccessor
         String[] desiredEventsOther = {"1", "2", "3"};
         ArrayList<String> desiredEvents = new ArrayList<String>(Arrays.asList((format == ActionCoreParserFormat.ACTION_CORE_FORMAT_MR) ? desiredEventsTimeSeries : desiredEventsOther));
 
-        ImmutableList<Map<String, Object>> events = accessor.getPath("my-event", ACTION_CORE_BASE_PATH_PREFIX + pathDate, format, desiredEvents, recursive, false, 5);
+        ImmutableList<Map<String, Object>> events = accessor.getPath(ACTION_CORE_BASE_PATH_PREFIX + pathDate, format, desiredEvents, recursive, false, 5);
         Assert.assertTrue(events.size() == expectedEventSize, "expected " + expectedEventSize + " for path " + ", got " + (events == null ? 0 : events.size()));
         accessor.close();
     }

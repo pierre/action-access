@@ -18,17 +18,18 @@ package com.ning.metrics.action.access;
 
 import com.google.common.collect.ImmutableList;
 import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.HttpResponseBodyPart;
+import com.ning.http.client.HttpResponseHeaders;
+import com.ning.http.client.HttpResponseStatus;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Request;
 import com.ning.http.client.Response;
-import com.ning.metrics.action.access.ActionCoreParser.ActionCoreParserFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,6 +41,8 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ActionAccessor
 {
@@ -55,6 +58,8 @@ public class ActionAccessor
     private final int port;
     private final String url;
     private final String DELIMITER = "|";
+
+
 
     public ActionAccessor(final String host, final int port)
     {
@@ -78,7 +83,7 @@ public class ActionAccessor
      * Synchronous interface: Returns a list of bean events.
      */
     public ImmutableList<Map<String, Object>> getPath(final String path,
-                                                      final ActionCoreParserFormat format,
+                                                      final ActionCoreParser.ActionCoreParserFormat format,
                                                       final ArrayList<String> desiredEventFields,
                                                       final boolean recursive,
                                                       final boolean raw,
@@ -148,6 +153,70 @@ public class ActionAccessor
             return null;
         }
     }
+
+    /**
+     * Asynchronous interface: downloads the url to a file locally (zero copy in memory).
+     * Used for downloading large files where using a Response object can cause OOM errors.
+     * <p/>
+     */
+    public void getPath(final String path, final boolean recursive, final boolean raw, File outputFile )
+    {
+        final String fullUrl = formatPath(path, recursive, raw);
+        try {
+            log.debug("ActionAccessor fetching {}", fullUrl);
+            final FileOutputStream stream = new FileOutputStream(outputFile);
+            AsyncHttpClient client = new AsyncHttpClient();
+            AsyncHandler<Response> asyncHandler = new AsyncHandler<Response>()
+            {
+                private final Response.ResponseBuilder builder =
+                    new Response.ResponseBuilder();
+
+                public void onThrowable(Throwable t)
+                {
+                }
+
+                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception
+                {
+                    bodyPart.writeTo(stream);
+                    stream.flush();
+                    return STATE.CONTINUE;
+                }
+
+                public STATE onStatusReceived(HttpResponseStatus status) throws Exception
+                {
+                    builder.accumulate(status);
+                    int statusCode = status.getStatusCode();
+                    return STATE.CONTINUE;
+                }
+
+                public STATE onHeadersReceived(HttpResponseHeaders header) throws Exception
+                {
+
+                    return STATE.CONTINUE;
+                }
+
+                public Response onCompleted() throws Exception
+                {
+                    stream.flush();
+                    return builder.build();
+                }
+
+            };
+            Future<Response> future = client.prepareGet(fullUrl).execute(asyncHandler);
+            //Waiting for the entire download to finish before returning. This is to account for client programs that cannot handle chunks of data as it comes. eg: the jackson jsonParser
+            while (!future.isDone()) {
+                Thread.sleep(10000);
+            }
+            //Response resp = future.get();
+            stream.close();
+        }
+        catch (IOException e) {
+            log.warn("Error getting path {} from {}:{} ({})", new Object[]{path, host, port, e.getLocalizedMessage()});
+        }
+        catch (InterruptedException e) {
+            log.warn("Error downloading file {}: ({})", new Object[]{fullUrl, e.getLocalizedMessage()});
+        }
+     }
 
     /**
      * Asynchronous interface to upload files to HDFS

@@ -9,7 +9,7 @@
     <groupId>com.ning</groupId>
     <artifactId>metrics.action-access</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
     <name>action-access</name>
     <description>Access library for the action-core</description>
     <url>http://github.com/pierre/action-access</url>

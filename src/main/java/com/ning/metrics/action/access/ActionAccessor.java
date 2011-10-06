@@ -207,8 +207,8 @@ public class ActionAccessor
             while (!future.isDone()) {
                 Thread.sleep(10000);
             }
-            //Response resp = future.get();
             stream.close();
+            client.close();
         }
         catch (IOException e) {
             log.warn("Error getting path {} from {}:{} ({})", new Object[]{path, host, port, e.getLocalizedMessage()});

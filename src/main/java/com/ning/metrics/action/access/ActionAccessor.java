@@ -216,7 +216,10 @@ public class ActionAccessor
         catch (InterruptedException e) {
             log.warn("Error downloading file {}: ({})", new Object[]{fullUrl, e.getLocalizedMessage()});
         }
-     }
+        finally {
+        client.close();
+        }
+    }
 
     /**
      * Asynchronous interface to upload files to HDFS
